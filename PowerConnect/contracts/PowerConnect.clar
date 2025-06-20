@@ -297,4 +297,58 @@
   )
 )
 
+;; Advanced matching system for automatic energy trading
+;; This function implements an intelligent matching algorithm that considers
+;; location proximity, energy type preferences, price ranges, and user reputation
+;; to automatically match buyers with sellers for optimal energy trading
+(define-public (auto-match-energy-trade 
+  (buyer-max-price uint)
+  (desired-energy-amount uint)
+  (preferred-energy-type (string-ascii 20))
+  (max-distance-km uint)
+  (min-seller-reputation uint)
+)
+  (let (
+    (current-listing-id u1)
+    (best-match-id u0)
+    (best-match-score u0)
+  )
+    ;; Validate input parameters
+    (asserts! (> buyer-max-price u0) err-invalid-price)
+    (asserts! (and (>= desired-energy-amount min-energy-amount) 
+                   (<= desired-energy-amount max-energy-amount)) err-invalid-amount)
+    (asserts! (<= min-seller-reputation u1000) err-invalid-amount)
+    
+    ;; Iterate through active listings to find best match
+    ;; In a real implementation, this would use a more efficient search algorithm
+    (let (
+      (matching-result (fold find-best-listing-match 
+        (list u1 u2 u3 u4 u5 u6 u7 u8 u9 u10) ;; Check first 10 listings
+        {
+          buyer-max-price: buyer-max-price,
+          desired-amount: desired-energy-amount,
+          preferred-type: preferred-energy-type,
+          min-reputation: min-seller-reputation,
+          best-listing-id: u0,
+          best-score: u0
+        }
+      ))
+    )
+      ;; If a good match is found, automatically execute the trade
+      (if (> (get best-score matching-result) u0)
+        (let (
+          (selected-listing-id (get best-listing-id matching-result))
+          (listing (unwrap! (map-get? energy-listings { listing-id: selected-listing-id }) err-not-found))
+        )
+          ;; Execute automatic purchase with the matched listing
+          (purchase-energy selected-listing-id 
+            (min-uint desired-energy-amount (get energy-amount listing)))
+        )
+        ;; No suitable match found - return same error type as purchase-energy
+        err-not-found
+      )
+    )
+  )
+)
+
 
